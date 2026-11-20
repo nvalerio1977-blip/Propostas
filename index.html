@@ -324,7 +324,6 @@ body.com-painel{overflow:hidden}
           
           <label>Validade (dias)<input type="number" id="cfgVal" min="1" step="1"></label>
           <div class="inst" id="instGrid"></div>
-          <label class="full">Notas para o cliente<textarea id="cfgNotas" rows="2" placeholder="Ex.: inclui até 3 m de tubagem por equipamento"></textarea></label>
         </div>
       </section>
 
@@ -770,7 +769,7 @@ function renderOrc(){
     </div>
     ${comparacao}
     ${altHtml}
-    <p class="nota"><b class="iva">${NOTA_IVA}</b> ${temInstalacao()?"Inclui instalação standard. ":"Instalação não incluída. "}${interno()&&S.cfg.notas?esc(S.cfg.notas):"Preços sujeitos a confirmação após visita técnica."}</p>
+    <p class="nota"><b class="iva">${NOTA_IVA}</b> ${temInstalacao()?"Inclui instalação standard. ":"Instalação não incluída. "}Preços sujeitos a confirmação após visita técnica.</p>
     <div class="acoes">
       <button type="button" class="btn pri" id="addComp">Adicionar à comparação</button>
       ${alts.some(a=>!a.motivo)?`<button type="button" class="btn" id="cmpMarcas">Comparar marcas</button>`:""}
@@ -859,7 +858,7 @@ function renderComp(){
         ${ev.length>1?row("Diferença",e=>{ const d=e.r.total-min; return d<0.005?`<span class="pill-ok">Mais económica</span>`:`<span class="dif">+${eur.format(d)}</span><small>+${(d/min*100).toFixed(1).replace(".",",")}%</small>`; },"r-dif"):""}
       </tbody>
     </table></div>
-    <p class="nota-cmp"><b class="iva">${NOTA_IVA}</b> ${temInst?"Inclui instalação standard. ":"Instalação não incluída. "}Preços sujeitos a confirmação após visita técnica.${interno()&&S.cfg.notas?" "+esc(S.cfg.notas):""}</p>`;
+    <p class="nota-cmp"><b class="iva">${NOTA_IVA}</b> ${temInst?"Inclui instalação standard. ":"Instalação não incluída. "}Preços sujeitos a confirmação após visita técnica.</p>`;
   box.querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",()=>{ S.comp.splice(Number(b.dataset.rm),1); renderComp(); }));
   box.querySelectorAll("[data-abrir]").forEach(b=>b.addEventListener("click",()=>{ restoreState(S.comp[Number(b.dataset.abrir)]); render(); window.scrollTo({top:0,behavior:"smooth"}); }));
   $("cmpLimpar").addEventListener("click",()=>{ S.comp=[]; renderComp(); });
@@ -893,7 +892,6 @@ function resumoTexto(r,num,alts,totAlt){
   const ok=(alts||[]).filter(a=>!a.motivo);
   if(ok.length){ L.push("","Equivalente noutras marcas (total s/ IVA):"); ok.forEach(a=>L.push(`- ${a.marca} ${a.nome}: ${eur.format(totAlt(a.eq,a.marca))}`)); }
   L.push("", NOTA_IVA, temInstalacao()?"Inclui instalação standard.":"Instalação não incluída.");
-  if(interno()&&S.cfg.notas) L.push(S.cfg.notas);
   return L.join("\n");
 }
 function copiar(t){
@@ -908,7 +906,6 @@ function ligarInterno(){
   const bind=(id,k)=>{ const el=$(id); el.value=S.cfg[k]; el.addEventListener("input",()=>{ S.cfg[k]=el.value; guardar(); renderGamas(); renderExts(); renderOrc(); }); };
   bind("cfgCliente","cliente"); bind("cfgVal","val");
   if(!S.cfg.descMarca) S.cfg.descMarca={Daikin:40.1,LG:55,Nuova:50};
-  bind("cfgNotas","notas");
   $("instGrid").innerHTML = `<span style="grid-column:1/-1;font-size:12px;color:var(--muted);font-weight:500">Instalação por unidade interior (€ s/ IVA), deixe 0 para não incluir</span>`+
     POT.map(k=>`<label>${kwTxt(k)}<input type="number" id="inst-${k.replace(".","")}" min="0" step="5" value="${S.cfg.inst[k]||0}"></label>`).join("")+
     `<label>Ext. multi<input type="number" id="inst-ext" min="0" step="5" value="${S.cfg.instExt||0}"></label>`;
